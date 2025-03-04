@@ -72,3 +72,5 @@ Contributions are welcome! Feel free to submit issues and pull requests to impro
 ---
 
 Scalify is designed to make resolution handling in LÖVE easier and more flexible. If you have any questions or suggestions, feel free to reach out!
+
+This is a fork of: https://github.com/Ulydev/push
