@@ -24,6 +24,7 @@ scalify:setupScreen(800, 600, 1280, 720, { fullscreen = false, resizable = true 
 - `800, 600`: Internal game resolution
 - `1280, 720`: Window resolution
 - `{ fullscreen = false, resizable = true }`: Optional settings
+- Ensure the Window resolution is also set in conf.lua to avoid any issues
 
 ### Managing Canvases
 ```lua
