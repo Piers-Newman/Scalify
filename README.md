@@ -1,6 +1,6 @@
 # Scalify
 
-Scalify is a fork of the pre-existing resolution handler Push which is init of itself a LÖVE (Love2D) library that provides an easy way to handle resolution scaling and high-DPI rendering. It allows developers to set up a game screen with different window modes, manage canvases for rendering, and apply shaders efficiently.
+Scalify is a fork of the pre-existing resolution handler Push which is itself a LÖVE (Love2D) library that provides an easy way to handle resolution scaling and high-DPI rendering. It allows developers to set up a game screen with different window modes, manage canvases for rendering, and apply shaders efficiently.
 
 ## Features
 - **Automatic resolution scaling**
