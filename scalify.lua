@@ -182,7 +182,7 @@ function scalify:resize(w, h)
   self:initValues()
 end
 
-function push:switchFullscreen(winw, winh)
+function scalify:switchFullscreen(winw, winh)
   self._fullscreen = not self._fullscreen
   local _, _, flags = love.window.getMode()
   local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
