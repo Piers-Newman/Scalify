@@ -1,3 +1,10 @@
+-- scalify.lua v1.0
+
+-- Copyright (c) 2024 Piers-Newman
+-- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+-- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 local love11 = love.getVersion() == 11
 local getDPI = love11 and love.window.getDPIScale or love.window.getPixelScale
 local windowUpdateMode = love11 and love.window.updateMode or function(width, height, settings)
@@ -35,7 +42,6 @@ function scalify:setupScreen(WWIDTH, WHEIGHT, RWIDTH, RHEIGHT, settings)
   
   local currentWidth, currentHeight, flags = love.window.getMode()
 
-  -- Only update the window mode if the settings actually changed
   if currentWidth ~= self._RWIDTH or currentHeight ~= self._RHEIGHT
     or flags.fullscreen ~= self._fullscreen
     or flags.resizable ~= self._resizable then
@@ -65,7 +71,8 @@ function scalify:addCanvas(params)
     private = params.private,
     shader = params.shader,
     canvas = love.graphics.newCanvas(self._WWIDTH, self._WHEIGHT),
-    stencil = params.stencil or self._stencil
+    stencil = params.stencil or self._stencil,
+    retain = params.retain
   }
 end
 
@@ -150,8 +157,10 @@ function scalify:finish()
     self:applyShaders(_render.canvas, _render.shader)
     love.graphics.pop()
     for _, canvas in ipairs(self.canvases) do
-      love.graphics.setCanvas(canvas.canvas)
-      love.graphics.clear()
+      if not self.canvases[i].retain then
+        love.graphics.setCanvas(self.canvases[i].canvas)
+        love.graphics.clear()
+      end
     end
     love.graphics.setCanvas()
     love.graphics.setShader()
@@ -169,6 +178,28 @@ function scalify:resize(w, h)
   if self._highdpi then w, h = w / self._PSCALE, h / self._PSCALE end
   self._RWIDTH, self._RHEIGHT = w, h
   self:initValues()
+end
+
+function push:switchFullscreen(winw, winh)
+  self._fullscreen = not self._fullscreen
+  local _, _, flags = love.window.getMode()
+  local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
+
+  if self._fullscreen then
+    self._WINWIDTH, self._WINHEIGHT = self._RWIDTH, self._RHEIGHT
+  elseif not self._WINWIDTH or not self._WINHEIGHT then
+    self._WINWIDTH, self._WINHEIGHT = desktopWidth * .5, desktopHeight * .5
+  end
+
+  self._RWIDTH = self._fullscreen and desktopWidth or winw or self._WINWIDTH
+  self._RHEIGHT = self._fullscreen and desktopHeight or winh or self._WINHEIGHT
+
+  self:initValues()
+
+  local windowWidth, windowHeight = love.window.getMode()
+  if not self._fullscreen and (windowWidth~=self._RWIDTH or windowHeight~=self._RHEIGHT) then
+    windowUpdateMode(self._RWIDTH, self._RHEIGHT)
+  end
 end
 
 function scalify:toGame(x, y)
