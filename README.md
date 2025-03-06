@@ -64,7 +64,7 @@ Contributions are welcome! Feel free to submit issues and pull requests to impro
 ## Getting Started
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/scalify.git
+   git clone https://github.com/Piers-Newman/Scalify.git
    cd scalify
    ```
 2. Include `scalify.lua` in your LÖVE project.
