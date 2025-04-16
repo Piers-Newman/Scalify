@@ -1,7 +1,7 @@
 -- scalify.lua v1.0
 
 -- Copyright (c) 2018 Ulysse Ramage
--- Copyright (c) 2025 Piers-Newman
+-- Copyright (c) 2024 Piers-Newman
 -- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 -- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -30,6 +30,8 @@ local scalify = {
 }
 
 function scalify:applySettings(settings)
+  self.scaleX, self.scaleY = self:_computeScale()
+  self.offsetX, self.offsetY = self:_computeOffset()
   for k, v in pairs(settings) do self["_" .. k] = v end
 end
 
@@ -106,6 +108,7 @@ function scalify:setShader(name, shader)
 end
 
 function scalify:initValues()
+  self.canvas = love.graphics.newCanvas()
   self._PSCALE = (not love11 and self._highdpi) and getDPI() or 1
   self._SCALE = {
     x = self._RWIDTH / self._WWIDTH * self._PSCALE,
@@ -173,6 +176,27 @@ end
 
 function scalify:setBorderColor(color, g, b)
   self._borderColor = g and {color, g, b} or color
+end
+
+function scalify:switchFullscreen(winw, winh)
+  self._fullscreen = not self._fullscreen
+  local windowWidth, windowHeight = love.window.getDesktopDimensions()
+  
+  if self._fullscreen then
+    self._WINWIDTH, self._WINHEIGHT = self._RWIDTH, self._RHEIGHT
+  elseif not self._WINWIDTH or not self._WINHEIGHT then
+    self._WINWIDTH, self._WINHEIGHT = windowWidth * .5, windowHeight * .5
+  end
+  
+  self._RWIDTH = self._fullscreen and windowWidth or winw or self._WINWIDTH
+  self._RHEIGHT = self._fullscreen and windowHeight or winh or self._WINHEIGHT
+  
+  self:initValues()
+  
+  love.window.setFullscreen(self._fullscreen, "desktop")
+  if not self._fullscreen and (winw or winh) then
+    windowUpdateMode(self._RWIDTH, self._RHEIGHT)
+  end
 end
 
 function scalify:resize(w, h)
